@@ -11,6 +11,8 @@ import com.demo.javaApplication.SharedDTO.AddressDTO;
 import com.demo.javaApplication.SharedDTO.UserDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.modelmapper.internal.bytebuddy.description.method.MethodDescription;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +23,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -39,6 +42,7 @@ public class UserServiceImpl implements UserService{
     @Autowired
     Utils utils;
 
+    private static final ModelMapper modelMapper = new ModelMapper();
     private static final Logger LOGGER = Logger.getLogger(UserServiceImpl.class.getName());
 
     @Override

@@ -1,5 +1,6 @@
 package com.demo.javaApplication.Service;
 
+import com.demo.javaApplication.SharedDTO.AddressDTO;
 import com.demo.javaApplication.SharedDTO.UserDTO;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
