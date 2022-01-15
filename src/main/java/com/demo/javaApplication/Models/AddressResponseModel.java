@@ -1,6 +1,7 @@
 package com.demo.javaApplication.Models;
 
-public class AddressResponseModel {
+
+public class AddressResponseModel{
     private String addressID;
     private String streetName;
     private String pincode;

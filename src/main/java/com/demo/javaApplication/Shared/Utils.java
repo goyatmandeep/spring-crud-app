@@ -1,9 +1,12 @@
 package com.demo.javaApplication.Shared;
 
-import com.demo.javaApplication.Service.UserServiceImpl;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +37,22 @@ public class Utils {
         }
         LOGGER.log(Level.INFO, "New user ID generated: "+stringBuilder.toString());
         return stringBuilder.toString();
+    }
+
+    public boolean isTokenExpired(String token){
+        Claims claims = Jwts.parser()
+                            .setSigningKey(SecurityConstants.getTokenSecret())
+                            .parseClaimsJws(token).getBody();
+        Date expirationDate = claims.getExpiration();
+        return expirationDate.before(new Date());
+    }
+
+    public String generateEmailVerificationToken(String userID){
+        return Jwts.builder()
+            .setSubject(userID)
+            .setExpiration(new Date(System.currentTimeMillis()+SecurityConstants.EMAIL_VERIFICATION_CODE_EXPIRATION_TIME))
+            .signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret())
+            .compact();
     }
 
 }

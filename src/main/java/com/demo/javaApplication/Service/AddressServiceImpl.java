@@ -3,7 +3,7 @@ package com.demo.javaApplication.Service;
 import com.demo.javaApplication.Entity.AddressEntity;
 import com.demo.javaApplication.Entity.UserEntity;
 import com.demo.javaApplication.Exceptions.UserServiceException;
-import com.demo.javaApplication.Models.ErrorMessages;
+import com.demo.javaApplication.Shared.ErrorMessages;
 import com.demo.javaApplication.Repository.AddressRepo;
 import com.demo.javaApplication.Repository.UserRepo;
 import com.demo.javaApplication.SharedDTO.AddressDTO;

@@ -1,18 +1,14 @@
 package com.demo.javaApplication.Service;
 
-import com.demo.javaApplication.Entity.AddressEntity;
 import com.demo.javaApplication.Entity.UserEntity;
 import com.demo.javaApplication.Exceptions.UserServiceException;
-import com.demo.javaApplication.Models.ErrorMessages;
+import com.demo.javaApplication.Shared.ErrorMessages;
 import com.demo.javaApplication.Repository.UserRepo;
 import com.demo.javaApplication.Shared.UserConstants;
 import com.demo.javaApplication.Shared.Utils;
 import com.demo.javaApplication.SharedDTO.AddressDTO;
 import com.demo.javaApplication.SharedDTO.UserDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
-import org.modelmapper.internal.bytebuddy.description.method.MethodDescription;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +19,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -64,8 +59,7 @@ public class UserServiceImpl implements UserService{
         UserEntity userEntity = modelMapper.map(userDTO, UserEntity.class);
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
         userEntity.setUserID(utils.generateUserID(userIDLength));
-
-
+        userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(userEntity.getUserID()));
 
         LOGGER.log(Level.INFO, "Saving the user data into the database.");
 
@@ -145,7 +139,22 @@ public class UserServiceImpl implements UserService{
         if(userEntity == null){
             throw new UsernameNotFoundException(email);
         }
-        return new User(email, userEntity.getEncryptedPassword(), new ArrayList<>());
+        return new User(email, userEntity.getEncryptedPassword(), userEntity.getEmailVerificationStatus(), true, true, true, new ArrayList<>());
     }
 
+    @Override
+    public boolean verifyEmailToken(String token) {
+        UserEntity userEntity = userRepo.findByEmailVerificationToken(token);
+        if(userEntity == null)
+            throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        boolean tokenExpired = utils.isTokenExpired(token);
+        if(!tokenExpired){
+            userEntity.setEmailVerificationToken(null);
+            userEntity.setEmailVerificationStatus(true);
+            userRepo.save(userEntity);
+            return true;
+        }
+        else
+            return false;
+    }
 }

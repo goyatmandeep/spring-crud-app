@@ -1,4 +1,4 @@
-package com.demo.javaApplication.Models;
+package com.demo.javaApplication.Shared;
 
 public enum ErrorMessages {
     MISSING_REQUIRED_FIELD("Missing required fields, please check documentation for required fields"),

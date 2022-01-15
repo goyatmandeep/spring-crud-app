@@ -4,13 +4,15 @@ import com.demo.javaApplication.Exceptions.UserServiceException;
 import com.demo.javaApplication.Models.*;
 import com.demo.javaApplication.Service.AddressService;
 import com.demo.javaApplication.Service.UserService;
+import com.demo.javaApplication.Shared.ErrorMessages;
+import com.demo.javaApplication.Shared.OperationStatus;
+import com.demo.javaApplication.Shared.OperationsName;
 import com.demo.javaApplication.Shared.SecurityConstants;
 import com.demo.javaApplication.SharedDTO.AddressDTO;
 import com.demo.javaApplication.SharedDTO.UserDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,9 +73,9 @@ public class UserController {
                    produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public OperationStatusModel deleteUser(@PathVariable String userID){
         OperationStatusModel returnValue = new OperationStatusModel();
-        returnValue.setOperationName("Delete");
+        returnValue.setOperationName(OperationsName.DELETE);
         userService.deleteUser(userID);
-        returnValue.setOperationResult("Success");
+        returnValue.setOperationResult(OperationStatus.SUCCESS);
         return returnValue;
     }
 
@@ -108,5 +110,17 @@ public class UserController {
         BeanUtils.copyProperties(userAddress, returnValue);
         return returnValue;
     }
+
+    @GetMapping(path = "/email-verification",
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public OperationStatusModel verifyUserEmail(@RequestParam(value = "token") String token){
+        OperationStatusModel operationStatus = new OperationStatusModel(OperationsName.VERIFY_EMAIL);
+        if(userService.verifyEmailToken(token))
+            operationStatus.setOperationResult(OperationStatus.SUCCESS);
+        else
+            operationStatus.setOperationResult(OperationStatus.ERROR);
+        return operationStatus;
+    }
+
 
 }

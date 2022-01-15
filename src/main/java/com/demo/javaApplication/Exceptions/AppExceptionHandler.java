@@ -1,6 +1,5 @@
 package com.demo.javaApplication.Exceptions;
 
-import com.demo.javaApplication.Models.ErrorMessages;
 import com.demo.javaApplication.Models.UserServiceErrorModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

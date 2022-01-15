@@ -1,22 +1,32 @@
 package com.demo.javaApplication.Models;
 
-public class OperationStatusModel {
-    private String operationName;
-    private String operationResult;
+import com.demo.javaApplication.Shared.OperationStatus;
+import com.demo.javaApplication.Shared.OperationsName;
 
-    public String getOperationName() {
-        return operationName;
+public class OperationStatusModel {
+    private OperationsName operationName;
+    private OperationStatus status;
+
+    public OperationStatusModel(){
     }
 
-    public void setOperationName(String operationName) {
+    public OperationStatusModel(OperationsName operationName){
         this.operationName = operationName;
     }
 
-    public String getOperationResult() {
-        return operationResult;
+    public OperationsName getOperationName() {
+        return operationName;
     }
 
-    public void setOperationResult(String operationResult) {
-        this.operationResult = operationResult;
+    public void setOperationName(OperationsName operationName) {
+        this.operationName = operationName;
+    }
+
+    public OperationStatus getOperationResult() {
+        return  status;
+    }
+
+    public void setOperationResult(OperationStatus operationResult) {
+        this.status = operationResult;
     }
 }
