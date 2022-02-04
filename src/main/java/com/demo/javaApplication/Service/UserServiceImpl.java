@@ -32,6 +32,9 @@ public class UserServiceImpl implements UserService{
     UserRepo userRepo;
 
     @Autowired
+    EmailService emailService;
+
+    @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
@@ -61,6 +64,7 @@ public class UserServiceImpl implements UserService{
         userEntity.setUserID(utils.generateUserID(userIDLength));
         userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(userEntity.getUserID()));
 
+        emailService.sendEmailVerificationCode(userEntity.getEmail(), userEntity.getEmailVerificationToken(), "localhost:8080/java-application/users/email-verification?token=");
         LOGGER.log(Level.INFO, "Saving the user data into the database.");
 
         UserEntity userResponse = userRepo.save(userEntity);
@@ -133,7 +137,7 @@ public class UserServiceImpl implements UserService{
         return returnValue;
     }
 
-    @Override
+    @Override  //for spring security internal use
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity userEntity = userRepo.findByEmail(email);
         if(userEntity == null){
@@ -147,7 +151,7 @@ public class UserServiceImpl implements UserService{
         UserEntity userEntity = userRepo.findByEmailVerificationToken(token);
         if(userEntity == null)
             throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
-        boolean tokenExpired = utils.isTokenExpired(token);
+        boolean tokenExpired = false; //utils.isTokenExpired(token); Does not require expirable code
         if(!tokenExpired){
             userEntity.setEmailVerificationToken(null);
             userEntity.setEmailVerificationStatus(true);

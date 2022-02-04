@@ -42,7 +42,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
-    @Override
+    @Override //need to provide our user service class so spring can load user by username, along with the password encode algo.
     public void configure(AuthenticationManagerBuilder auth) throws Exception{
         auth.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);
     }

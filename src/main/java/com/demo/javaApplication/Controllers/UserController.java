@@ -13,6 +13,7 @@ import com.demo.javaApplication.SharedDTO.UserDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,8 +55,7 @@ public class UserController {
 
         UserDTO userResponseDTO = userService.createUser(userDTO);
 
-        UserDetailsResponseModel userDetailsResponseModel = modelMapper.map(userResponseDTO, UserDetailsResponseModel.class);
-        return userDetailsResponseModel;
+        return modelMapper.map(userResponseDTO, UserDetailsResponseModel.class);
     }
 
     @PutMapping(path = "/{userID}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
