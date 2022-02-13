@@ -4,29 +4,29 @@ import com.demo.javaApplication.Shared.OperationStatus;
 import com.demo.javaApplication.Shared.OperationsName;
 
 public class OperationStatusModel {
-    private OperationsName operationName;
-    private OperationStatus status;
+    private String operationName;
+    private String operationStatus;
 
     public OperationStatusModel(){
     }
 
-    public OperationStatusModel(OperationsName operationName){
+    public OperationStatusModel(String operationName){
         this.operationName = operationName;
     }
 
-    public OperationsName getOperationName() {
+    public String getOperationName() {
         return operationName;
     }
 
-    public void setOperationName(OperationsName operationName) {
+    public void setOperationName(String operationName) {
         this.operationName = operationName;
     }
 
-    public OperationStatus getOperationResult() {
-        return  status;
+    public String getOperationStatus() {
+        return  operationStatus;
     }
 
-    public void setOperationResult(OperationStatus operationResult) {
-        this.status = operationResult;
+    public void setOperationStatus(String operationStatus) {
+        this.operationStatus = operationStatus;
     }
 }

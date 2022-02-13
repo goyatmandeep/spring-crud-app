@@ -1,13 +1,17 @@
 package com.demo.javaApplication.Service;
 
+import com.demo.javaApplication.Entity.PasswordResetTokenEntity;
 import com.demo.javaApplication.Entity.UserEntity;
 import com.demo.javaApplication.Exceptions.UserServiceException;
+import com.demo.javaApplication.Repository.PasswordResetTokenRepo;
 import com.demo.javaApplication.Shared.ErrorMessages;
 import com.demo.javaApplication.Repository.UserRepo;
+import com.demo.javaApplication.Shared.MailConstants;
 import com.demo.javaApplication.Shared.UserConstants;
 import com.demo.javaApplication.Shared.Utils;
 import com.demo.javaApplication.SharedDTO.AddressDTO;
 import com.demo.javaApplication.SharedDTO.UserDTO;
+import jdk.jshell.execution.Util;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,9 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     EmailService emailService;
+
+    @Autowired
+    PasswordResetTokenRepo passwordResetTokenRepo;
 
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -64,7 +71,7 @@ public class UserServiceImpl implements UserService{
         userEntity.setUserID(utils.generateUserID(userIDLength));
         userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(userEntity.getUserID()));
 
-        emailService.sendEmailVerificationCode(userEntity.getEmail(), userEntity.getEmailVerificationToken(), "localhost:8080/java-application/users/email-verification?token=");
+        emailService.sendEmail(userEntity.getEmail(), MailConstants.PATH_EMAIL_VERIFICATION, userEntity.getEmailVerificationToken());
         LOGGER.log(Level.INFO, "Saving the user data into the database.");
 
         UserEntity userResponse = userRepo.save(userEntity);
@@ -149,8 +156,10 @@ public class UserServiceImpl implements UserService{
     @Override
     public boolean verifyEmailToken(String token) {
         UserEntity userEntity = userRepo.findByEmailVerificationToken(token);
-        if(userEntity == null)
-            throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        if(userEntity == null){
+            LOGGER.log(Level.FINER, ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+            return false;
+        }
         boolean tokenExpired = false; //utils.isTokenExpired(token); Does not require expirable code
         if(!tokenExpired){
             userEntity.setEmailVerificationToken(null);
@@ -161,4 +170,47 @@ public class UserServiceImpl implements UserService{
         else
             return false;
     }
+    @Override
+    public boolean forgotPassword(String emailID){
+        UserEntity userEntity = userRepo.findByEmail(emailID);
+        if(userEntity == null){
+            LOGGER.info(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+            return false;
+        }
+        else{
+            String passwordResetToken = utils.generatePasswordResetToken(userEntity.getUserID());
+            PasswordResetTokenEntity passwordResetTokenEntity = new PasswordResetTokenEntity();
+            passwordResetTokenEntity.setPasswordResetToken(passwordResetToken);
+            passwordResetTokenEntity.setUserEntity(userEntity);
+            try{
+                passwordResetTokenRepo.save(passwordResetTokenEntity);
+                emailService.sendEmail(userEntity.getEmail(), MailConstants.PATH_FORGOT_PASSWORD, passwordResetToken);
+            }
+            catch (Exception e){
+                LOGGER.info(ErrorMessages.INTERNAL_SERVER_ERROR.getErrorMessage());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean resetPassword(String passwordResetToken, String password){
+        PasswordResetTokenEntity passwordResetTokenEntity = passwordResetTokenRepo.findByPasswordResetToken(passwordResetToken);
+        if(passwordResetTokenEntity == null){
+            LOGGER.info(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+            return false;
+        }
+        if(utils.isTokenExpired(passwordResetToken)){
+            LOGGER.info(ErrorMessages.TOKEN_EXPIRED.getErrorMessage());
+            passwordResetTokenRepo.delete(passwordResetTokenEntity);
+            return false;
+        }
+        UserEntity userEntity = passwordResetTokenEntity.getUserEntity();
+        userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(password));
+        userRepo.save(userEntity);
+        passwordResetTokenRepo.delete(passwordResetTokenEntity);
+        return true;
+    }
+
 }

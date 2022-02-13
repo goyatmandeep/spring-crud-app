@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification Service</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+            var urlParams = new URLSearchParams(location.search);
+            if(urlParams.has('token')){
+                verifyToken(urlParams.get('token'));
+            }
+
+            function verifyToken(tokenValue)
+            {
+                $.get('http://localhost:8080/java-application/users/email-verification', {token: tokenValue})
+                .done(function (response){
+                    if(response["operationStatus"] === "SUCCESS"){
+                        $("#success").attr("style", "display: block !important;");
+                        $("#failure").attr("style", "display: none !important;");
+                    }
+                    else{
+                        $("#failure").attr("style", "display: block !important;");
+                        $("#success").attr("style", "display: none !important;");
+                    }
+                });
+            }
+    });
+
+    </script>
+
+</head>
+<body>
+<div id="success" style="display:none"> Verification successful.</div>
+<div id="failure" style="display:none"> Verification link expired.</div>
+</body>
+</html>

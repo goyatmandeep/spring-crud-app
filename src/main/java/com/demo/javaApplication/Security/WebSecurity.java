@@ -31,9 +31,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.csrf()
             .disable()
             .authorizeRequests()
-            .antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL).permitAll()
+            .antMatchers(HttpMethod.POST, SecurityConstants.LOGIN_URL).permitAll()
             .antMatchers("/").permitAll()
+            .antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL).permitAll()
+            .antMatchers(HttpMethod.POST, SecurityConstants.FORGOT_PASSWORD_URL).permitAll()
+            .antMatchers(HttpMethod.POST, SecurityConstants.RESET_PASSWORD_URL).permitAll()
             .antMatchers(HttpMethod.GET, SecurityConstants.VERIFICATION_EMAIL_URL).permitAll()
+            .antMatchers(HttpMethod.GET, SecurityConstants.VERIFY_EMAIL_HTML_URL).permitAll()
+            .antMatchers(HttpMethod.GET, SecurityConstants.RESET_PASSWORD_HTML_URL).permitAll()
             .anyRequest()
             .authenticated().and()
             .addFilter(getAuthenticationFilter())
@@ -49,7 +54,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     public AuthenticationFilter getAuthenticationFilter() throws Exception{
         final AuthenticationFilter filter = new AuthenticationFilter(authenticationManager());
-        filter.setFilterProcessesUrl("/user/login");
+        filter.setFilterProcessesUrl("/users/login");
         return filter;
     }
 

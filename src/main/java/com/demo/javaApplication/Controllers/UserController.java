@@ -7,6 +7,7 @@ import com.demo.javaApplication.Service.UserService;
 import com.demo.javaApplication.Shared.ErrorMessages;
 import com.demo.javaApplication.Shared.OperationStatus;
 import com.demo.javaApplication.Shared.OperationsName;
+import com.demo.javaApplication.Shared.ErrorMessages;
 import com.demo.javaApplication.Shared.SecurityConstants;
 import com.demo.javaApplication.SharedDTO.AddressDTO;
 import com.demo.javaApplication.SharedDTO.UserDTO;
@@ -75,7 +76,7 @@ public class UserController {
         OperationStatusModel returnValue = new OperationStatusModel();
         returnValue.setOperationName(OperationsName.DELETE);
         userService.deleteUser(userID);
-        returnValue.setOperationResult(OperationStatus.SUCCESS);
+        returnValue.setOperationStatus(OperationStatus.SUCCESS);
         return returnValue;
     }
 
@@ -116,11 +117,33 @@ public class UserController {
     public OperationStatusModel verifyUserEmail(@RequestParam(value = "token") String token){
         OperationStatusModel operationStatus = new OperationStatusModel(OperationsName.VERIFY_EMAIL);
         if(userService.verifyEmailToken(token))
-            operationStatus.setOperationResult(OperationStatus.SUCCESS);
+            operationStatus.setOperationStatus(OperationStatus.SUCCESS);
         else
-            operationStatus.setOperationResult(OperationStatus.ERROR);
+            operationStatus.setOperationStatus(OperationStatus.ERROR);
         return operationStatus;
     }
 
+
+    @PostMapping(path = "/forgot-password", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public OperationStatusModel forgotPassword(@RequestBody ForgotPasswordRequestModel forgotPasswordRequestModel){
+        OperationStatusModel operationStatusModel = new OperationStatusModel();
+        operationStatusModel.setOperationName(OperationsName.FORGOT_PASSWORD);
+        operationStatusModel.setOperationStatus(OperationStatus.ERROR);
+         if(userService.forgotPassword(forgotPasswordRequestModel.getEmailID())){
+             operationStatusModel.setOperationStatus(OperationStatus.SUCCESS);
+         }
+         return operationStatusModel;
+    }
+
+    @PostMapping(path = "/reset-password", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public OperationStatusModel resetPassword(@RequestBody ResetPasswordRequestModel resetPasswordRequestModel){
+        OperationStatusModel operationStatusModel = new OperationStatusModel();
+        operationStatusModel.setOperationName(OperationsName.RESET_PASSWORD);
+        operationStatusModel.setOperationStatus(OperationStatus.ERROR);
+        if(userService.resetPassword(resetPasswordRequestModel.getPasswordResetToken(), resetPasswordRequestModel.getPassword())){
+            operationStatusModel.setOperationStatus(OperationStatus.SUCCESS);
+        }
+        return operationStatusModel;
+    }
 
 }

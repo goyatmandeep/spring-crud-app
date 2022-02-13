@@ -55,4 +55,12 @@ public class Utils {
             .compact();
     }
 
+    public String generatePasswordResetToken(String userID){
+        return Jwts.builder()
+                .setSubject(userID)
+                .setExpiration(new Date(System.currentTimeMillis()+SecurityConstants.PASSWORD_RESET_CODE_EXPIRATION_TIME))
+                .signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret())
+                .compact();
+    }
+
 }
